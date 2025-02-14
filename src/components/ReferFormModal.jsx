@@ -23,8 +23,27 @@ const ReferFormModal = ({ isOpen, onClose }) => {
     resolver: zodResolver(referSchema),
   });
 
-  const onSubmit = (data) => {
-    console.log("Referral Data:", data);
+  const onSubmit = async (formData) => {
+    try {
+      const res = await fetch("http://localhost:5000/api/referral", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        alert("Referral sent successfully!");
+        reset();
+      } else {
+        reset();
+        alert(data.error || "Something went wrong");
+      }
+    } catch (error) {
+      console.error(error);
+      reset();
+      alert("Failed to send referral.");
+    }
     onClose();
   };
 
