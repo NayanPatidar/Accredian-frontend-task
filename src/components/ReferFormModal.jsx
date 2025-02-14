@@ -1,5 +1,5 @@
-import React from "react";
-import { useForm } from "react-hook-form";
+import React, { useState } from "react";
+import { set, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -22,8 +22,10 @@ const ReferFormModal = ({ isOpen, onClose }) => {
   } = useForm({
     resolver: zodResolver(referSchema),
   });
+  const [loading, setLoading] = useState(false);
 
   const onSubmit = async (formData) => {
+    setLoading(true);
     try {
       const res = await fetch("http://localhost:5000/api/referral", {
         method: "POST",
@@ -34,13 +36,16 @@ const ReferFormModal = ({ isOpen, onClose }) => {
       const data = await res.json();
       if (res.ok) {
         alert("Referral sent successfully!");
+        setLoading(false);
         reset();
       } else {
         reset();
+        setLoading(false);
         alert(data.error || "Something went wrong");
       }
     } catch (error) {
       console.error(error);
+      setLoading(false);
       reset();
       alert("Failed to send referral.");
     }
@@ -155,6 +160,7 @@ const ReferFormModal = ({ isOpen, onClose }) => {
             <button
               type="submit"
               className="bg-blue-500 text-white px-4 py-2 rounded"
+              disabled={loading}
             >
               Submit
             </button>
